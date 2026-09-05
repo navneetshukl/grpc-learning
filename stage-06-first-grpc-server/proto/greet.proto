@@ -1,0 +1,25 @@
+// proto/greet.proto
+// This is the contract between the gRPC client and server.
+// Both sides generate their code from this single file.
+
+syntax = "proto3";
+
+package greet;
+
+option go_package = "grpc-learning/stage-06-first-grpc-server/gen;greetpb";
+
+// GreetRequest is the input message for the Greet RPC method.
+message GreetRequest {
+    string name = 1;
+}
+
+// GreetResponse is the output message returned by the Greet RPC method.
+message GreetResponse {
+    string result = 1;
+}
+
+// GreetService exposes a single unary RPC: Greet.
+// Client sends a GreetRequest, server responds with a GreetResponse.
+service GreetService {
+    rpc Greet(GreetRequest) returns (GreetResponse);
+}

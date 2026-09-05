@@ -1,4 +1,4 @@
-module grpc-learning
+module grpc-learning/stage-07-first-grpc-client
 
 go 1.25.1
 
