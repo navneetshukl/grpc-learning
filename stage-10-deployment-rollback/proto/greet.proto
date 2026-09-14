@@ -1,0 +1,75 @@
+// proto/greet.proto
+// Versioned service demonstrating rollback strategies through semantic versioning
+// This stage focuses on gRPC-native deployment concepts:
+// - Proto backward compatibility (safe field additions)
+// - Graceful shutdown via server.GracefulStop()
+// - Connection draining
+// - Health checking via gRPC health protocol
+// - Versioned services on the same port
+
+syntax = "proto3";
+
+package greet.v1;
+
+option go_package = "grpc-learning/stage-10-deployment-rollback/gen;greetpb";
+
+// ============================================================================
+// V1 Messages (Original — NEVER modify existing fields)
+// ============================================================================
+
+// GreetRequest is the original request message.
+// Field 1 (name) is NEVER changed or reused.
+message GreetRequest {
+    string name = 1;
+}
+
+// GreetResponse is the original response message.
+// Field 1 (result) is NEVER changed or reused.
+message GreetResponse {
+    string result = 1;
+}
+
+// ============================================================================
+// V2 Messages (New version — adds fields safely)
+// ============================================================================
+
+// GreetRequestV2 adds new fields without breaking v1 clients.
+// Old clients ignore fields 2+ because they don't know about them.
+message GreetRequestV2 {
+    string name = 1;          // Same field number as v1
+    string language = 2;      // NEW field — safe to add
+    int32 timeout_ms = 3;     // NEW field — safe to add
+}
+
+// GreetResponseV2 adds new fields without breaking v1 clients.
+message GreetResponseV2 {
+    string result = 1;        // Same field number as v1
+    string localized_greeting = 2; // NEW field — safe to add
+    string version = 3;       // NEW field — safe to add
+}
+
+// ============================================================================
+// Service Definition with Version-Aware Methods
+// ============================================================================
+
+service GreetService {
+    // v1 unary RPC — works with all clients
+    rpc Greet(GreetRequest) returns (GreetResponse);
+    
+    // v2 unary RPC — returns enriched response
+    // Old clients can still call Greet; new clients use GreetV2
+    rpc GreetV2(GreetRequestV2) returns (GreetResponseV2);
+    
+    // Health check — internal gRPC health protocol
+    rpc Check(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+// HealthCheckRequest for gRPC health protocol
+message HealthCheckRequest {
+    string service = 1;
+}
+
+// HealthCheckResponse for gRPC health protocol
+message HealthCheckResponse {
+    string status = 1;  // "SERVING", "NOT_SERVING", "UNKNOWN"
+}

@@ -1,0 +1,52 @@
+// proto/greet.proto
+// This contract adds error handling demonstrations to the basic greet RPC
+
+syntax = "proto3";
+
+package greet;
+
+option go_package = "grpc-learning/stage-09-error-handling/gen;greetpb";
+
+// GreetRequest is the input message for the Greet RPC method.
+message GreetRequest {
+    string name = 1;
+}
+
+// GreetResponse is the output message returned by the Greet RPC method.
+message GreetResponse {
+    string result = 1;
+}
+
+// GreetManyTimesRequest is the input for server-streaming RPC.
+message GreetManyTimesRequest {
+    string name = 1;
+    int32 count = 2;
+}
+
+// GreetManyTimesResponse is sent multiple times by the server.
+message GreetManyTimesResponse {
+    string result = 1;
+}
+
+// GreetErrorRequest requests a specific error status code.
+message GreetErrorRequest {
+    string error_type = 1;  // "not_found", "invalid_argument", "deadline_exceeded"
+}
+
+// GreetErrorResponse carries error info
+message GreetErrorResponse {
+    string message = 1;
+    string details = 2;
+}
+
+// Service with error handling demonstrations
+service GreetService {
+    // Unary RPC: simple greeting
+    rpc Greet(GreetRequest) returns (GreetResponse);
+    
+    // Server-streaming RPC: multiple responses
+    rpc GreetManyTimes(GreetManyTimesRequest) returns (stream GreetManyTimesResponse);
+    
+    // Error demonstration RPC: request a specific error type
+    rpc GetError(GreetErrorRequest) returns (GreetErrorResponse);
+}

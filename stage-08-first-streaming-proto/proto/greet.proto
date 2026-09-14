@@ -1,0 +1,39 @@
+// proto/greet.proto
+// This contract adds server-streaming RPC to the basic unary Greet
+
+syntax = "proto3";
+
+package greet;
+
+option go_package = "grpc-learning/stage-08-first-streaming-proto/gen;greetpb";
+
+// GreetRequest is the input message for the Greet RPC method.
+message GreetRequest {
+    string name = 1;
+}
+
+// GreetResponse is the output message returned by the Greet RPC method.
+message GreetResponse {
+    string result = 1;
+}
+
+// GreetManyTimesRequest is the input for server-streaming RPC.
+// The server will send multiple GreetManyTimesResponse messages.
+message GreetManyTimesRequest {
+    string name = 1;
+    int32 count = 2;  // How many greetings to send
+}
+
+// GreetManyTimesResponse is sent multiple times by the server.
+message GreetManyTimesResponse {
+    string result = 1;
+}
+
+// GreetService now has BOTH unary and server-streaming RPCs.
+service GreetService {
+    // Unary RPC: one request, one response
+    rpc Greet(GreetRequest) returns (GreetResponse);
+    
+    // Server-streaming RPC: one request, many responses
+    rpc GreetManyTimes(GreetManyTimesRequest) returns (stream GreetManyTimesResponse);
+}
